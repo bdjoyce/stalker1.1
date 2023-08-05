@@ -1,0 +1,26 @@
+Usage will be pretty much the same as the original stalker:
+
+Adjust the horizontal cross bar to the desired height
+*For normal in-field operation the hardware should be calibrated at the beginning of use and at every height change
+**Calibrate by taking a measurement against open air (no plants)
+**Place foot on hinge end and hold instrument straight up and down
+*Power up the unit by flipping the power switch
+**LED will be solid red during initialization (1 second)
+**Then flashing red/blue during settling (5 seconds)
+**Then solid blue when measurement is ready
+***If LED stays solid red - something did not initialize check SD card log file for details
+*Push the vertical bar forward until the LED turns solid red indicating a 45 degree angle has been reached
+**Results will be more accurate if pushed using a steady, smooth motion
+*Bring vertical bar back to straight up and down
+*Power off the unit
+
+After each measurement a log file is created with the following contents.  The filename is controlled by OpenLog configuration and will be LOG#####.TXT by default with the number incrementing every time the device is powered on regardless of whether or not a measurement was completed.
+
+*initialization log
+*throwaway measurement line
+*========
+*labels
+*measurement data
+*measurement data
+*measurement data
+*...
