@@ -65,7 +65,7 @@ stalker1p1Loadcell <- function(data, meas_angle=45, meas_spread_down=-15, meas_s
   #this will remove the effect from inelastic strain, and avoid the
   #turn-around since the jerk of the instrument changing direction will
   #affect the load cell and the angle calculation
-  anglemillistime = min(data$millis[which(data$angle>meas_angle)])
+  anglemillistime = min(data$millis[which(data$angle>(meas_angle+meas_spread_up))])
   sdata = subset(data, millis<=anglemillistime)
   
   #next select only the points with angles near to the desired measurement
