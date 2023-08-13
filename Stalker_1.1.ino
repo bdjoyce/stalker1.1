@@ -72,8 +72,9 @@ void setup() {
   //loadcell initialization
   Serial.print(" loadcell");
   LoadCell.begin();
-  LoadCell.start(0);
-  LoadCell.setCalFactor(696.0);
+  LoadCell.start(0, 0);  //do not tare
+  LoadCell.setCalFactor(696.0);  //calibration factor should be computed on a per-instruement basis
+  // instructions for calibration can be found in HX711_ADC library
 
   //distance sensor initialization
   Serial.print(" dist");
