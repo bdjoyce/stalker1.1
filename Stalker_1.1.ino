@@ -1,4 +1,5 @@
-//Stalker 1.1
+
+//Stalker 1.1.2
 //by Brian Joyce
 //based on 'The Stalker' by Heuschele et al. 2019
 //https://www.hardware-x.com/article/S2468-0672(18)30118-4/fulltext
@@ -41,7 +42,7 @@ SFEVL53L1X distanceSensor;
 MMA8452Q accel;
 #define UPDOWN_AXIS -ay     //updown directon based on orientation of the accel sensor
 #define FLAT_AXIS az       //flat to the ground based on oreintation of the accel sensor
-
+#define TIP_ANGLE 50
 
 // LED defs
 const int BLUE_LED_PIN = 7;
@@ -71,8 +72,10 @@ void setup() {
 
   //loadcell initialization
   Serial.print(" loadcell");
+  LoadCell.setSamplesInUse(2);  //change averaging to 4 samples with top/bottom discarded
   LoadCell.begin();
   LoadCell.start(0, 0);  //do not tare
+  
   LoadCell.setCalFactor(696.0);  //calibration factor should be computed on a per-instruement basis
   // instructions for calibration can be found in HX711_ADC library
 
@@ -120,40 +123,74 @@ void loop() {
 void dataline() {
 
   //start with timestame (in milliseconds)
-  Serial.print(millis());
-  Serial.print(",");
+  long ms = millis();
+
+  //do a loop averaging some accel data to remove noise
+  //and populate the loadcell measurements at the same time
+  LoadCell.update();
+  float ax = 0;
+  float ay = 0;
+  float az = 0;
+  int numsamps = 4;
+  for (int samps=0; samps<numsamps; samps++) {
+    
+    //keep track of millis, wait at least 105 ms to get a clean loadcell sample
+    //since load cell rate is 100ms
+    long startms = millis();
+
+    //average for the accel data
+    ax += (accel.getCalculatedX()/numsamps);
+    ay += (accel.getCalculatedY()/numsamps);
+    az += (accel.getCalculatedZ()/numsamps);
+
+    //wait til the load cell is done
+    while ((millis()-startms) < 105) { delay(1); }
+
+    LoadCell.update();
+  }
 
   //update weight data
-  LoadCell.update();
-  Serial.print(LoadCell.getData());
-  Serial.print(",");
+  float lc = LoadCell.getData();
 
   //update distance data
   int distance = distanceSensor.getDistance();
+
+  //update angle data
+  float angle = ((atan2(FLAT_AXIS,UPDOWN_AXIS))*180)/PI;
+
+  //update LED based on angle
+  if (angle>TIP_ANGLE) {
+    digitalWrite(BLUE_LED_PIN, HIGH);  //LED off
+    digitalWrite(RED_LED_PIN, LOW);   //LED on
+  }
+  
+  
+  //print everything at the end so the sensor can work more closely aligned
+
+  //milli print
+  Serial.print(ms);
+  Serial.print(",");
+
+  //load cell
+  Serial.print(lc);
+  Serial.print(",");
+
+  //distance prints
   Serial.print(distance);
   Serial.print(",");
 
-  //update angle data
-  float ax = accel.getCalculatedX();
-  float ay = accel.getCalculatedY();
-  float az = accel.getCalculatedZ();
+  //accel prints
   Serial.print(ax, 3);
   Serial.print(",");
   Serial.print(ay, 3);
   Serial.print(",");
   Serial.print(az, 3);
   Serial.print(",");
-  float angle = ((atan2(FLAT_AXIS,UPDOWN_AXIS))*180)/PI;
   Serial.print(angle,3);
   Serial.print(",");
-
-  //update LED based on angle
-  if (angle>45) {
-    digitalWrite(BLUE_LED_PIN, HIGH);  //LED off
-    digitalWrite(RED_LED_PIN, LOW);   //LED on
-  }
   
   //newline to setup for next entry
   Serial.print("\n");
+
   
 }
