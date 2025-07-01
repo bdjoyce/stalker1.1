@@ -42,7 +42,7 @@ SFEVL53L1X distanceSensor;
 MMA8452Q accel;
 #define UPDOWN_AXIS -ay     //updown directon based on orientation of the accel sensor
 #define FLAT_AXIS az       //flat to the ground based on oreintation of the accel sensor
-#define TIP_ANGLE 50
+#define TIP_ANGLE 53
 
 // LED defs
 const int BLUE_LED_PIN = 7;
@@ -72,17 +72,17 @@ void setup() {
 
   //loadcell initialization
   Serial.print(" loadcell");
-  LoadCell.setSamplesInUse(2);  //change averaging to 4 samples with top/bottom discarded
+  LoadCell.setSamplesInUse(1);  //change averaging to none
   LoadCell.begin();
   LoadCell.start(0, 0);  //do not tare
   
-  LoadCell.setCalFactor(696.0);  //calibration factor should be computed on a per-instruement basis
+  LoadCell.setCalFactor(479.79);  //calibration factor should be computed on a per-instruement basis
   // instructions for calibration can be found in HX711_ADC library
 
   //distance sensor initialization
-  Serial.print(" dist");
-  distanceSensor.begin();
-  distanceSensor.startRanging();
+  //Serial.print(" dist");
+  //distanceSensor.begin();
+  //distanceSensor.startRanging();
 
   //acceleraomoter initialization
   Serial.print(" accel");
@@ -131,7 +131,7 @@ void dataline() {
   float ax = 0;
   float ay = 0;
   float az = 0;
-  int numsamps = 4;
+  int numsamps = 1;
   for (int samps=0; samps<numsamps; samps++) {
     
     //keep track of millis, wait at least 105 ms to get a clean loadcell sample
@@ -153,7 +153,8 @@ void dataline() {
   float lc = LoadCell.getData();
 
   //update distance data
-  int distance = distanceSensor.getDistance();
+  //int distance = distanceSensor.getDistance();
+  int distance = 0;
 
   //update angle data
   float angle = ((atan2(FLAT_AXIS,UPDOWN_AXIS))*180)/PI;
