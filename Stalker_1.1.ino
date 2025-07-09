@@ -76,7 +76,7 @@ void setup() {
   LoadCell.begin();
   LoadCell.start(0, 0);  //do not tare
   
-  LoadCell.setCalFactor(479.79);  //calibration factor should be computed on a per-instruement basis
+  LoadCell.setCalFactor(408.94);  //calibration factor should be computed on a per-instruement basis
   // instructions for calibration can be found in HX711_ADC library
 
   //distance sensor initialization
@@ -131,22 +131,16 @@ void dataline() {
   float ax = 0;
   float ay = 0;
   float az = 0;
-  int numsamps = 1;
+  int numsamps = 21;
   for (int samps=0; samps<numsamps; samps++) {
-    
-    //keep track of millis, wait at least 105 ms to get a clean loadcell sample
-    //since load cell rate is 100ms
-    long startms = millis();
 
     //average for the accel data
     ax += (accel.getCalculatedX()/numsamps);
     ay += (accel.getCalculatedY()/numsamps);
     az += (accel.getCalculatedZ()/numsamps);
 
-    //wait til the load cell is done
-    while ((millis()-startms) < 105) { delay(1); }
-
     LoadCell.update();
+    delay(1);
   }
 
   //update weight data
